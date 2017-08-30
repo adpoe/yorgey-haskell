@@ -51,7 +51,7 @@ getMax (_,b,_) = b
   We create containing [(maxCount) ... 1], and for all frequencies,
   if the the frequency at that number >= line number, then fill that line with '*'.
 
-  Also keps the data data structures to 2 lists, where the indices act as a implicit numbering system,
+  Also keps the data data structures to 2 lists, where the indices act as an implicit numbering system,
   for both frequency counts, and line number.
 
   Hadn't seen mapping a list comprehension over another list before, either. Nice touch.
