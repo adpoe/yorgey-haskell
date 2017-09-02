@@ -1,6 +1,5 @@
-module HW04
-    (
-    ) where
+module HW04 ()
+    where
 
 --  | Wholemeal Programming
 {- re-write the `fun1` and `fun2` in more idiomatic Haskell style.
@@ -45,3 +44,25 @@ insert value (Node height left node right)
 treeHeight :: Tree a -> Integer
 treeHeight Leaf = 0
 treeHeight (Node height _ _ _) = height
+
+
+-- | More Folds
+xor :: [Bool] -> Bool
+xor = odd . foldr (\b accum -> if b then accum + 1 else accum) 0
+-- Count how many trues there are, using an acumulator, then check if odd
+
+map' :: (a -> b) -> [a] -> [b]
+map' f = foldr (\val accum -> f val : accum) []
+
+
+-- | Finding Primes
+{- Best explanation is at: https://stackoverflow.com/questions/16246456/sieve-of-sundaram-list-comprehension-}
+sieveSundaram :: Integer -> [Integer]
+sieveSundaram n = 2:[2*x+1 | x <- [1..n], x `notElem` badNums n]
+-- then, from the list of ALL numbers (call them n) not in the badNums,
+-- take each number, and make it odd with formula 2*n+1
+-- Those are the odd primes, according to the sieve.
+
+-- generate list of numbers we do NOT want
+badNums :: Integer -> [Integer]
+badNums n = [i+j+2*i*j|i<-[1..n],j<-[i..n]]
