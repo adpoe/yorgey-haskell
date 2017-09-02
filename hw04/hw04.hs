@@ -61,7 +61,7 @@ sieveSundaram :: Integer -> [Integer]
 sieveSundaram n = 2:[2*x+1 | x <- [1..n], x `notElem` badNums n]
 -- then, from the list of ALL numbers (call them n) not in the badNums,
 -- take each number, and make it odd with formula 2*n+1
--- Those are the odd primes, according to the sieve.
+-- Those are the primes, according to the sieve.
 
 -- generate list of numbers we do NOT want
 badNums :: Integer -> [Integer]
