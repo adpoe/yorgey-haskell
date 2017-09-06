@@ -1,7 +1,10 @@
+{-# LANGUAGE TypeSynonymInstances #-}
+{-# LANGUAGE FlexibleInstances #-}
 module Calculator where
 
 import ExprT
 import Parser
+import StackVM
 
 eval :: ExprT -> Integer
 eval (ExprT.Lit i) = i
@@ -63,3 +66,24 @@ testInteger = testExp :: Maybe Integer
 testBool = testExp :: Maybe Bool
 testMM = testExp :: Maybe MinMax
 testSat = testExp :: Maybe Mod7
+
+-- essentially make a list of operations,
+-- and that's our program...
+-- important: need to have the arithmetic operation
+--        __below__ the two operands
+--        so `lit` is just a push onto the stackVM
+--        and the `add` of `mul` operations put the
+--        operands onto stack, above the operation marker
+instance Expr StackVM.Program where
+  lit a = [StackVM.PushI a]
+  add a b = a ++ b ++ [StackVM.Add]
+  mul a b = a ++ b ++ [StackVM.Mul]
+
+-- and this uses the "Program" instance's implementations
+-- of our type class to create our list
+compile :: String -> Maybe Program
+compile s = parseExp lit add mul s
+
+-- Here's expected output
+-- *Calculator> compile "(3 * -4) + 5"
+--              Just [PushI 3,PushI (-4),Mul,PushI 5,Add]
