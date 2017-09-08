@@ -72,7 +72,7 @@ testSat = testExp :: Maybe Mod7
 -- important: need to have the arithmetic operation
 --        __below__ the two operands
 --        so `lit` is just a push onto the stackVM
---        and the `add` of `mul` operations put the
+--        and the `add` or `mul` operations put the
 --        operands onto stack, above the operation marker
 instance Expr StackVM.Program where
   lit a = [StackVM.PushI a]
