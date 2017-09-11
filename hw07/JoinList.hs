@@ -61,7 +61,7 @@ dropJ i (Single _ _) | i > 1 = Empty
 dropJ i (Append m l r)
   | i > getSize (size m) = Empty
   | i < leftSize = dropJ i l +++ r  -- keep right, and drop from left
-  | i > leftSize = dropJ (i - leftSize) r
+  | i >= leftSize = dropJ (i - leftSize) r
   where leftSize = getSize . size . tag $ l
 
 takeJ :: (Sized b, Monoid b) =>
@@ -72,5 +72,5 @@ takeJ _ jl@(Single _ _) = jl
 takeJ i jl@(Append m l r)
   | i > getSize (size m) = jl
   | i < leftSize = takeJ i l -- keep examining left
-  | i > leftSize = l +++ takeJ (i - leftSize) r -- build up. use all of left and what's needed in right
+  | i >= leftSize = l +++ takeJ (i - leftSize) r -- build up. use all of left and what's needed in right
   where leftSize = getSize . size . tag $ l
