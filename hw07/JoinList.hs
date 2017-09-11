@@ -50,3 +50,27 @@ jlToList :: JoinList m a -> [a]
 jlToList Empty = []
 jlToList (Single _ a)  = [a]
 jlToList (Append _ l1 l2) = jlToList l1 ++ jlToList l2
+
+-- | Drop the first N elements of a JoinList
+dropJ :: (Sized b, Monoid b) =>
+         Int -> JoinList b a -> JoinList b a
+dropJ _ Empty = Empty
+dropJ i _ | i < 0 = Empty
+dropJ 0 jl = jl
+dropJ i (Single _ _) | i > 1 = Empty
+dropJ i (Append m l r)
+  | i > getSize (size m) = Empty
+  | i < leftSize = dropJ i l +++ r  -- keep right, and drop from left
+  | i > leftSize = dropJ (i - leftSize) r
+  where leftSize = getSize . size . tag $ l
+
+takeJ :: (Sized b, Monoid b) =>
+         Int -> JoinList b a -> JoinList b a
+takeJ _ Empty = Empty
+takeJ i _ | i <= 0 = Empty
+takeJ _ jl@(Single _ _) = jl
+takeJ i jl@(Append m l r)
+  | i > getSize (size m) = jl
+  | i < leftSize = takeJ i l -- keep examining left
+  | i > leftSize = l +++ takeJ (i - leftSize) r -- build up. use all of left and what's needed in right
+  where leftSize = getSize . size . tag $ l
