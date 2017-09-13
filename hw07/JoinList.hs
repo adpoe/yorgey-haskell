@@ -1,7 +1,11 @@
+{-# LANGUAGE FlexibleInstances, TypeSynonymInstances #-}
 module JoinList where
 
 import Sized
 import Data.Monoid
+import Scrabble
+import Buffer
+import Editor
 
 data JoinList m a = Empty
                   | Single m a
@@ -74,3 +78,49 @@ takeJ i jl@(Append m l r)
   | i < leftSize = takeJ i l -- keep examining left
   | i >= leftSize = l +++ takeJ (i - leftSize) r -- build up. use all of left and what's needed in right
   where leftSize = getSize . size . tag $ l
+
+scoreLine :: String -> JoinList Score String
+scoreLine s = Single (scoreString s) s  -- make a single, with score as Monoid.
+-- these can then be combined
+
+{- Combine both kinds of annotation. A pair of Monoids is itself a Monoid. -}
+type JLBuffer = JoinList (Score, Size) String
+
+instance Buffer JLBuffer where
+
+  -- | Convert a buffer to a String.
+  -- toString :: b -> String
+  toString = unlines . jlToList
+
+  -- | Create a buffer from a String.
+  -- fromString :: String -> b
+  fromString = foldr (+++) Empty . map (\s -> Single (scoreString s, Size 1) s) . lines
+
+  -- | Extract the nth line (0-indexed) from a buffer.  Return Nothing
+  -- for out-of-bounds indices.
+  -- line :: Int -> b -> Maybe String
+  line = indexJ
+
+  -- | @replaceLine n ln buf@ returns a modified version of @buf@,
+  --   with the @n@th line replaced by @ln@.  If the index is
+  --   out-of-bounds, the buffer should be returned unmodified.
+  -- replaceLine :: Int -> String -> b -> b
+  replaceLine n rstr jlb =
+   takeJ n jlb +++ Single (scoreString rstr, Size 1) rstr +++ dropJ (n+1) jlb
+  -- | Compute the number of lines in the buffer.
+  -- numLines :: b -> Int
+  numLines = getSize . size . tag
+
+  -- | Compute the value of the buffer, i.e. the amount someone would
+  --   be paid for publishing the contents of the buffer.
+  -- value :: b -> Integer
+  value = scorev . fst . tag
+        where scorev (Score i) = i
+
+main = runEditor editor jlb
+  where jlb = fromString $ unlines xs
+        xs = [ "This buffer is for notes you don't want to save, and for"
+            , "evaluation of steam valve coefficients."
+            , "To load a different file, type the character L followed"
+            , "by the name of the file."
+            ]
