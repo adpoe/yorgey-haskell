@@ -34,7 +34,7 @@ treeFold f Node {rootLabel = a, subForest = xs} = f a (map (treeFold f) xs)
 -- and the way that treeFold is defined, it just needs a function of propert type
 -- and any tree of `a`'s --> and it can produce the desired output tuple
 -- doesn't matter that we aren't passing it a (GL, GL) tuple that was created
--- a priori. It gets made in process.
+-- a priori. It gets made in process, using mempty if there's nothing there yet.
 
 nextLevel :: Employee -> [(GuestList, GuestList)] -> (GuestList, GuestList)
 nextLevel boss results = let
